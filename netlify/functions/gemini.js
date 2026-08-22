@@ -54,7 +54,10 @@ export default async (req) => {
     parts: toParts(m.content),
   }));
 
-  const generationConfig = { maxOutputTokens: max_tokens };
+  const generationConfig = {
+    maxOutputTokens: Math.max(max_tokens, 2048),
+    thinkingConfig: { thinkingBudget: 0 },
+  };
   if (system && /ONLY valid JSON/i.test(system)) {
     generationConfig.responseMimeType = "application/json";
   }
