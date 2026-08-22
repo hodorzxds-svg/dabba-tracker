@@ -933,7 +933,102 @@ function WeightScreen({ weights, onAddWeight, onImportWeights }) {
   }, [weights]);
   const prevWeekAvg = useMemo(() => {
     const prior = weights.slice(-14, -7);
-    if (!prio</div>
+    if (!prior.length) return null;
+      return round(prior.reduce((s, w) => s + w.weight, 0) / prior.length, 1);
+    }, [weights]);
+    const latestWithBody = [...weights].reverse().find((w) => w.bodyFatPct != null || w.muscleMassKg != null);
+
+    const submit = () => {
+      const w = Number(val);
+      if (!w) return;
+      onAddWeight({ date: todayKey(), weight: w });
+      setVal("");
+    };
+
+    const handleFile = (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const lines = String(reader.result).split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+          const rows = [];
+          for (const line of lines) {
+            const parts = line.split(",").map((p) => p.trim());
+            if (parts.length < 2) continue;
+            let [rawDate, rawWeight] = parts;
+            if (!/^\d/.test(rawDate)) continue;
+            const w = parseFloat(rawWeight);
+            if (!w) continue;
+            const d = new Date(rawDate);
+            if (isNaN(d.getTime())) continue;
+            rows.push({ date: dateKey(d), weight: w });
+          }
+          if (rows.length) {
+            onImportWeights(rows);
+            setImportMsg(`Imported ${rows.length} weigh-ins.`);
+          } else {
+            setImportMsg("Couldn't find any date,weight rows in that file.");
+          }
+        } catch (err) {
+          setImportMsg("Couldn't read that file.");
+        }
+      };
+      reader.readAsText(file);
+      e.target.value = "";
+    };
+
+    const handleScreenshot = async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      e.target.value = "";
+      setScanLoading(true); setScanError(""); setScanResult(null);
+      try {
+        const r = await parseWeightScreenshot(file);
+        if (r.weight == null) {
+          setScanError("Couldn't find a weight reading in that screenshot — try a clearer crop.");
+          return;
+        }
+        const weightKg = r.weightUnit === "lb" ? round(r.weight * 0.453592, 1) : r.weight;
+        setScanResult({
+          date: todayKey(), weight: weightKg,
+          bodyFatPct: r.bodyFatPct, muscleMassKg: r.muscleMassKg, bmi: r.bmi,
+          confidence: r.confidence, note: r.note,
+        });
+      } catch (err) {
+        setScanError("Couldn't read that screenshot — check your connection and try again.");
+      } finally {
+        setScanLoading(false);
+      }
+    };
+
+    const confirmScan = () => {
+      onAddWeight(scanResult);
+      setScanResult(null);
+    };
+
+    return (
+      <div>
+        <SectionTitle eyebrow="Log">Today's weight</SectionTitle>
+        <Card>
+          <div style={{ display: "flex", gap: 10 }}>
+            <input className="dabba-input" type="number" step="0.1" placeholder="kg" value={val} onChange={(e) => setVal(e.target.value)} />
+            <button className="btn-primary" style={{ width: "auto" }} onClick={submit}><Plus size={16} /> Log</button>
+          </div>
+          <label className="btn-secondary" style={{ cursor: "pointer" }}>
+            {scanLoading ? <Loader2 size={16} className="spin" /> : <Camera size={16} />}
+            {scanLoading ? "Reading screenshot…" : "Scan a Dr.Trust 360 screenshot"}
+            <input type="file" accept="image/*" onChange={handleScreenshot} style={{ display: "none" }} disabled={scanLoading} />
+          </label>
+          <label className="btn-secondary" style={{ cursor: "pointer" }}>
+            <Upload size={16} /> Import from CSV (date, weight)
+            <input type="file" accept=".csv,text/csv" onChange={handleFile} style={{ display: "none" }} />
+          </label>
+          {scanError && <div className="error-text"><AlertCircle size={14} /> {scanError}</div>}
+          {importMsg && <div className="note-text">{importMsg}</div>}
+          <div className="note-text">
+            No direct connection to Dr.Trust 360 is possible — it doesn't expose a public API. Scanning a screenshot or importing a CSV export are the closest workarounds.
+          </div>
       </Card>
 
       {scanResult && (
