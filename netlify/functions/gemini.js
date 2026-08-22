@@ -13,7 +13,7 @@ export default async (req) => {
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
+  if (!apiKey) { console.error("GEMINI_API_KEY is missing from environment variables");
     return new Response(
       JSON.stringify({ content: [{ type: "text", text: "Server is missing GEMINI_API_KEY. Set it in Netlify's environment variables." }] }),
       { status: 500, headers: { "Content-Type": "application/json" } }
@@ -75,7 +75,7 @@ export default async (req) => {
     const data = await geminiRes.json();
 
     if (!geminiRes.ok) {
-      const message = data?.error?.message || `Gemini API error (${geminiRes.status})`;
+      const message = data?.error?.message || `Gemini API error (${geminiRes.status})`;console.error("Gemini API error:", geminiRes.status, JSON.stringify(data));
       return new Response(JSON.stringify({ content: [{ type: "text", text: `Error: ${message}` }] }), {
         status: geminiRes.status,
         headers: { "Content-Type": "application/json" },
@@ -91,7 +91,7 @@ export default async (req) => {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
-  } catch (err) {
+  } catch (err) { console.error("Function crashed:", err.message);
     return new Response(JSON.stringify({ content: [{ type: "text", text: `Error: ${err.message}` }] }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
