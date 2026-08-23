@@ -381,9 +381,9 @@ async function callClaudeMessages(system, messages) {
   return (data.content || []).map((b) => b.text || "").join("\n");
 }
 
-const NUTRITION_PERSONA = `You are the in-app nutrition coach for "Dabba", a personal Indian/vegetarian nutrition and fat-loss tracker. ${CUISINE_CONTEXT} Answer the user's questions about nutrition, their own logged data, or the app itself, in a warm, knowledgeable, non-judgmental tone — like a fitness buddy, not a robotic calculator. Use the context below when it's relevant, but don't recite it back unless asked. Keep answers concise and practical (a few sentences, plain prose). For anything that sounds like a specific medical concern, recommend seeing a doctor rather than diagnosing.`;
+const NUTRITION_PERSONA = `You are the in-app nutrition coach for "Forge", a personal Indian/vegetarian nutrition and fat-loss tracker. ${CUISINE_CONTEXT} Answer the user's questions about nutrition, their own logged data, or the app itself, in a warm, knowledgeable, non-judgmental tone — like a fitness buddy, not a robotic calculator. Use the context below when it's relevant, but don't recite it back unless asked. Keep answers concise and practical (a few sentences, plain prose). For anything that sounds like a specific medical concern, recommend seeing a doctor rather than diagnosing.`;
 
-const EXERCISE_PERSONA = `You are the in-app exercise coach for "Dabba", a personal fat-loss tracker. You help the user think through their training circuit, exercise selection, sets/reps/progression, balancing muscle groups across the week, working around missed sessions or soreness, and how sleep and recovery affect their training. You are warm, practical, and never shame a missed workout. Use the context below (recent logged workouts, sleep, weight trend, goal) when relevant, but don't recite it back unless asked. Keep answers concise. For pain, injury, or anything that sounds medical, recommend seeing a doctor or physiotherapist rather than diagnosing or prescribing rehab.`;
+const EXERCISE_PERSONA = `You are the in-app exercise coach for "Forge", a personal fat-loss tracker. You help the user think through their training circuit, exercise selection, sets/reps/progression, balancing muscle groups across the week, working around missed sessions or soreness, and how sleep and recovery affect their training. You are warm, practical, and never shame a missed workout. Use the context below (recent logged workouts, sleep, weight trend, goal) when relevant, but don't recite it back unless asked. Keep answers concise. For pain, injury, or anything that sounds medical, recommend seeing a doctor or physiotherapist rather than diagnosing or prescribing rehab.`;
 
 async function chatWithAI(persona, history, contextSummary, newMessage) {
   const system = `${persona}\n\nContext about this user:\n${contextSummary}`;
@@ -840,7 +840,7 @@ function SaveMemoryModal({ initialName, initialDesc, onSave, onDismiss }) {
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <div className="section-title" style={{ fontSize: 17, marginBottom: 4 }}>Save meal as food memory?</div>
         <div className="note-text" style={{ marginTop: 0 }}>
-          Next time you log this, Dabba will remember exactly what it means.
+          Next time you log this, Forge will remember exactly what it means.
         </div>
         <label className="field-label">Name</label>
         <input className="dabba-input" value={name} onChange={(e) => setName(e.target.value)} />
@@ -1908,7 +1908,7 @@ export default function DabbaTracker() {
         <>
           <div className="dabba-header">
             <div>
-              <h1>Dabba</h1>
+              <h1>Forge</h1>
               <div className="tag">your daily tiffin, tracked</div>
             </div>
           </div>
